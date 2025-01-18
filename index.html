@@ -1,0 +1,43 @@
+import logging
+import asyncio
+from telegram import Bot, Update, InlineKeyboardMarkup, InlineKeyboardButton
+from telegram.ext import Application, CommandHandler, CallbackContext
+
+# 🔹 Bot API Token
+BOT_TOKEN = "7708216067:AAF2Li2xV-2ZIF9dhpJsy4_LQGFIZhSmW5U"
+
+# 🔹 Initialize bot
+bot = Bot(token=BOT_TOKEN)
+
+# 🔹 Logging setup
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# 🔹 Start Command – Redirects User to Wallet Connection Page
+async def start(update: Update, context: CallbackContext):
+    # ✅ Replace this with your hosted Phantom connection page
+    wallet_connect_url = "https://yourusername.github.io/connect.html"
+
+    keyboard = [[InlineKeyboardButton("🔗 Connect Solana Wallet", url=wallet_connect_url)]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    await update.message.reply_text(
+        "🚀 *Welcome to the $TRUMP x $T47 Airdrop & Presale!* 🚀\n\n"
+        "💎 Click below to securely connect your Phantom Wallet & verify your wallet address.",
+        reply_markup=reply_markup,
+        parse_mode="Markdown"
+    )
+
+# 🔹 Bot Setup
+def setup_bot():
+    application = Application.builder().token(BOT_TOKEN).build()
+    application.add_handler(CommandHandler("start", start))
+    return application
+
+# 🔹 Run the bot
+if __name__ == "__main__":
+    logger.info("✅ Wallet Connection Bot Started!")
+    loop = asyncio.get_event_loop()
+    application = setup_bot()
+    loop.create_task(application.run_polling())
+    loop.run_forever()
