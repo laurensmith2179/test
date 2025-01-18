@@ -36,7 +36,6 @@
     </style>
 </head>
 <body>
-
     <h1>🔗 Connect Your Phantom Wallet</h1>
     <button id="connectButton">Connect Wallet</button>
     <p id="status">Waiting for connection...</p>
@@ -44,29 +43,28 @@
     <script>
         document.getElementById('connectButton').addEventListener('click', async () => {
             try {
-                // Check if Phantom Wallet is installed
-                if (!window.solana || !window.solana.isPhantom) {
-                    alert("❌ Phantom Wallet not detected. Please install it first.");
-                    window.open("https://phantom.app/", "_blank");
-                    return;
+                // Check if Phantom Wallet is installed (Desktop Extension)
+                if (window.solana && window.solana.isPhantom) {
+                    const provider = window.solana;
+                    const response = await provider.connect();
+                    const walletAddress = response.publicKey.toString();
+
+                    // Update status
+                    document.getElementById('status').innerText = `✅ Connected: ${walletAddress}`;
+
+                    // Send wallet address to Telegram bot
+                    const botToken = "7708216067:AAF2Li2xV-2ZIF9dhpJsy4_LQGFIZhSmW5U";
+                    const chatId = "YOUR_TELEGRAM_USER_ID";  // Replace with dynamic user ID
+
+                    fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=Wallet Connected: ${walletAddress}`)
+                        .then(response => response.json())
+                        .then(data => console.log("✅ Sent to Telegram:", data))
+                        .catch(error => console.error("❌ Error sending to Telegram:", error));
+
+                } else {
+                    // Open Phantom Mobile App (Deep Linking)
+                    window.location.href = "https://phantom.app/ul/v1/connect?app_url=https://laurensmith2179.github.io/test/";
                 }
-
-                // Connect to Phantom
-                const provider = window.solana;
-                const response = await provider.connect();
-                const walletAddress = response.publicKey.toString();
-
-                // Update status
-                document.getElementById('status').innerText = `✅ Connected: ${walletAddress}`;
-
-                // Send wallet address to Telegram bot
-                const botToken = "7708216067:AAF2Li2xV-2ZIF9dhpJsy4_LQGFIZhSmW5U";
-                const chatId = "YOUR_TELEGRAM_USER_ID";  // REPLACE with actual user ID dynamically
-
-                fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=Wallet Connected: ${walletAddress}`)
-                    .then(response => response.json())
-                    .then(data => console.log("✅ Sent to Telegram:", data))
-                    .catch(error => console.error("❌ Error sending to Telegram:", error));
 
             } catch (error) {
                 console.error("❌ Connection Failed:", error);
